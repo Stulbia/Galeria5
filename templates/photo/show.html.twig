@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{ 'title.photo_details'|trans({'%id%': photo.id|default('')}) }}
+{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>{{ photo.title }}</h1>
+
+        {% if photo is defined and photo|length %}
+            <div class="row">
+                <div class="col-md-8">
+                    <img src="{{ asset(photos_directory ~ photo.filename) }}" alt="photo" class="img-fluid mb-3" style="max-height:800px;">
+                    <dl class="dl-horizontal">
+                        <dt>{{ 'label.average.rating'|trans }}</dt>
+                        <dd>{{ rating }}</dd>
+                        {% block rating %}
+                            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                                <a class="btn btn-outline-success mt-3" href="{{ url('rating', {id: photo.id}) }}" title="{{ 'action.rate'|trans }}">
+                                    {{ 'action.rate'|trans }}
+                                </a>
+                            {% endif %}
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <a class="btn btn-outline-success mt-3" href="{{ url('rating_list', {id: photo.id}) }}" title="{{ 'action.rate_admin'|trans }}">
+                                    {{ 'action.rate_admin'|trans }}
+                                </a>
+                            {% endif %}
+                        {% endblock %}
+                        <dt>{{ 'label.created_at'|trans }}</dt>
+                        <dd>{{ photo.createdAt|format_date('long') }}</dd>
+                        <dt>{{ 'label.created_at'|trans }}</dt>
+                        <dd>{{ photo.createdAt|format_date('long') }}</dd>
+                        <dt>{{ 'label.updated_at'|trans }}</dt>
+                        <dd>{{ photo.updatedAt|format_date('long') }}</dd>
+                        {# ... #}
+                        <dt>{{ 'label.description'|trans }}</dt>
+                        <dd>{{ photo.description|markdown_to_html }}</dd>
+                        {# ... #}
+                        <dt>{{ 'label.gallery'|trans }}</dt>
+                        <dd>
+                            <a href="{{ path('gallery_show', {id: photo.gallery.id}) }}" title="{{ 'action.show'|trans }}">
+                                {{ photo.gallery.title }}
+                            </a>
+                        </dd>
+                    </dl>
+                    <div class="btn-group mt-3" role="group">
+                        {% if is_granted('EDIT', photo) %}
+                            <a href="{{ path('photo_edit', {id: photo.id}) }}" class="btn btn-outline-success" title="{{ 'action.edit'|trans }}">
+                                {{ 'action.edit'|trans }}
+                            </a>
+                        {% endif %}
+
+                        {% if is_granted('DELETE', photo) %}
+                            <a href="{{ path('photo_delete', {id: photo.id}) }}" class="btn btn-outline-danger" title="{{ 'action.delete'|trans }}">
+                                {{ 'action.delete'|trans }}
+                            </a>
+                        {% endif %}
+                        <a href="{{ path('photo_index') }}" class="btn btn-outline-secondary" title="{{ 'action.back_to_list'|trans }}">
+                            {{ 'action.back_to_list'|trans }}
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="comments">
+                        <h2>{{ 'title.comments'|trans }}</h2>
+
+                            {% block comment %}
+                                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                                <a class="btn btn-outline-success mt-3" href="{{ url('comment_create', {id: photo.id}) }}" title="{{ 'action.comment'|trans }}">
+                                    {{ 'action.comment'|trans }}
+                                </a>
+                                {% endif %}
+                                {% include "comment/index.html.twig" %}
+                            {% endblock %}
+
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning">
+                {{ 'message.record_not_found'|trans }}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

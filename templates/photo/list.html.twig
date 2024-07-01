@@ -1,0 +1,106 @@
+{% block body %}
+
+    {% if is_granted('ROLE_USER') %}
+        <div class="navigation ">
+        <a class="btn btn-outline-success mt-3" href="{{ url('photo_create') }}" title="{{ 'action.create'|trans }}">
+            {{ 'action.create'|trans }}
+        </a>
+        </div>
+    {% endif %}
+
+    {% if pagination is defined and pagination.items|length %}
+
+        <div class="navigation text-center">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>{{ 'label.photo'|trans }}</a></th>
+                <th>{{ knp_pagination_sortable(pagination, 'label.title'|trans, 'photo.title') }}</th>
+                <th>{{ knp_pagination_sortable(pagination, 'label.description'|trans, 'photo.description') }}</th>
+                <th>{{ knp_pagination_sortable(pagination, 'label.created_at'|trans, 'photo.createdAt') }}</th>
+                <th>{{ knp_pagination_sortable(pagination, 'label.updated_at'|trans, 'photo.updatedAt') }}</th>
+                <th>{{ knp_pagination_sortable(pagination, 'label.gallery'|trans, 'gallery.title') }}</a></th>
+                <th>{{ 'label.tags'|trans }}</a></th>
+                {#                <th>{{ 'label.gallery'|trans }}</th>#}
+                <th>{{ 'label.actions'|trans }}</th>
+
+            </tr>
+            </thead>
+            <tbody>
+
+            {% for photo in pagination.items %}
+                {% if is_granted('VIEW', photo) %}
+                <tr>
+                    <td>
+
+                        <img src="{{ asset(photos_directory ~ photo.filename) }}" alt="photo" style="
+                                    width: 300px; margin: 5px;" >
+                    </td>
+                    <td>{{ photo.title }}</td>
+                    <td>{{ photo.description }}</td>
+                    <td>{{ photo.createdAt|format_date('long') }}</td>
+                    <td>{{ photo.updatedAt|format_date('long') }}</td>
+                    <td> <a
+                            href="{{ url('photo_index', {'galleryId' : photo.gallery.id, 'statusId' : photo.status}) }}"
+                            title="{{ photo.gallery.title }}">
+                            {{ photo.gallery.title }}
+                        </a></td>
+                    <td>
+                        {% if photo.tags is defined and photo.tags|length %}
+                            {% for tag in photo.tags %}
+                                <div>
+                                    <a class="btn btn-outline-primary"
+                                       href="{{ url('photo_index', {'tagId' : tag.id, 'statusId' : photo.status}) }}"
+                                       title="{{ tag.title }}">
+                                        {{ tag.title }}
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            &nbsp;
+                        {% endif %}
+                    </td>
+
+                    <td>
+
+                        {# ... #}
+                        <div class="list-group">
+                            <a href="{{ path('photo_show', {id: photo.id}) }}" class="list-group-item list-group-item-action btn btn-outline-primary" title="{{ 'action.show'|trans }}">
+                                {{ 'action.show'|trans }}
+                            </a>
+
+
+                            {% if is_granted('EDIT', photo) %}
+                                <a href="{{ path('photo_edit', {id: photo.id}) }}" class="list-group-item list-group-item-action btn btn-outline-success" title="{{ 'action.edit'|trans }}">
+                                    {{ 'action.edit'|trans }}
+                                </a>
+                            {% endif %}
+
+                            {% if is_granted('DELETE', photo) %}
+                                <a href="{{ path('photo_delete', {id: photo.id}) }}" class="list-group-item list-group-item-action btn btn-outline-danger" title="{{ 'action.delete'|trans }}">
+                                    {{ 'action.delete'|trans }}
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {# ... #}
+                    </td>
+                </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="navigation text-center">
+            {{ knp_pagination_render(pagination) }}
+        </div>
+
+    {% else %}
+        <p>
+            {{ 'message.empty_list'|trans }}
+        </p>
+    {% endif %}
+{% endblock %}
